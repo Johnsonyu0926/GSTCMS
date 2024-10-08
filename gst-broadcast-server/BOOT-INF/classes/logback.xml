@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 日志存放路径 -->
+	<property name="log.path" value="/opt/logs/gst-broadcast-server" />
+    <!-- 日志输出格式 -->
+	<property name="log.pattern" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{20} - [%method,%line] - %msg%n" />
+
+	<!-- 控制台输出 -->
+	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>${log.pattern}</pattern>
+		</encoder>
+	</appender>
+	
+	<!-- 系统日志输出 -->
+	<appender name="file_info" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	    <file>${log.path}/sys-info.log</file>
+        <!-- 循环政策：基于时间创建日志文件 -->
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 日志文件名格式 -->
+			<fileNamePattern>${log.path}/sys-info/sys-info.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<!-- 日志最大的历史 60天 -->
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${log.pattern}</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!-- 过滤的级别 -->
+            <level>INFO</level>
+            <!-- 匹配时的操作：接收（记录） -->
+            <onMatch>ACCEPT</onMatch>
+            <!-- 不匹配时的操作：拒绝（不记录） -->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+	</appender>
+
+    <appender name="message_info" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/message-info.log</file>
+        <!-- 循环政策：基于时间创建日志文件 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 日志文件名格式 -->
+            <fileNamePattern>${log.path}/message/message.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- 日志最大的历史 10天 -->
+            <maxHistory>5</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!-- 过滤的级别 -->
+            <level>INFO</level>
+            <!-- 匹配时的操作：接收（记录） -->
+            <onMatch>ACCEPT</onMatch>
+            <!-- 不匹配时的操作：拒绝（不记录） -->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <appender name="open-api" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/open-api.log</file>
+        <!-- 循环政策：基于时间创建日志文件 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 日志文件名格式 -->
+            <fileNamePattern>${log.path}/open-api/open-api.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- 日志最大的历史 10天 -->
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!-- 过滤的级别 -->
+            <level>INFO</level>
+            <!-- 匹配时的操作：接收（记录） -->
+            <onMatch>ACCEPT</onMatch>
+            <!-- 不匹配时的操作：拒绝（不记录） -->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <appender name="framework-info" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/framework-info.log</file>
+        <!-- 循环政策：基于时间创建日志文件 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 日志文件名格式 -->
+            <fileNamePattern>${log.path}/framework-info/framework.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- 日志最大的历史 10天 -->
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!-- 过滤的级别 -->
+            <level>INFO</level>
+            <!-- 匹配时的操作：接收（记录） -->
+            <onMatch>ACCEPT</onMatch>
+            <!-- 不匹配时的操作：拒绝（不记录） -->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+	
+	<appender name="file_error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	    <file>${log.path}/sys-error.log</file>
+        <!-- 循环政策：基于时间创建日志文件 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 日志文件名格式 -->
+            <fileNamePattern>${log.path}/error/sys-error.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<!-- 日志最大的历史 60天 -->
+			<maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!-- 过滤的级别 -->
+            <level>ERROR</level>
+			<!-- 匹配时的操作：接收（记录） -->
+            <onMatch>ACCEPT</onMatch>
+			<!-- 不匹配时的操作：拒绝（不记录） -->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+	
+	<!-- 系统模块日志级别控制  -->
+    <logger name="com.giant.sound" level="info" additivity="false">
+        <level value="info" />
+        <springProfile name="local">
+            <level value="debug" />
+            <appender-ref ref="console" />
+        </springProfile>
+        <appender-ref ref="console" />
+        <appender-ref ref="file_info" />
+        <appender-ref ref="file_error" />
+    </logger>
+	<!-- Spring日志级别控制  -->
+    <logger name="com.giant.sound.broadcastframework.listener" additivity="false">
+        <level value="info" />
+        <springProfile name="local">
+            <appender-ref ref="console" />
+        </springProfile>
+        <appender-ref ref="framework-info" />
+        <appender-ref ref="file_error" />
+    </logger>
+
+    <logger name="com.giant.sound.messageplatform" additivity="false">
+        <level value="info" />
+        <springProfile name="local">
+            <level value="debug" />
+            <appender-ref ref="console" />
+        </springProfile>
+        <appender-ref ref="message_info" />
+        <appender-ref ref="file_error" />
+    </logger>
+
+    <logger name="com.giant.sound.openapi" additivity="false">
+        <level value="info" />
+        <springProfile name="local">
+            <appender-ref ref="console" />
+        </springProfile>
+        <appender-ref ref="open-api" />
+        <appender-ref ref="file_error" />
+    </logger>
+
+	<root level="debug">
+		<appender-ref ref="console" />
+	</root>
+	
+	<!--系统操作日志-->
+    <root>
+        <level value="info" />
+<!--        <appender-ref ref="console" />-->
+        <appender-ref ref="open-api" />
+        <appender-ref ref="message_info" />
+        <appender-ref ref="framework-info" />
+        <appender-ref ref="file_info" />
+        <appender-ref ref="file_error" />
+    </root>
+</configuration> 

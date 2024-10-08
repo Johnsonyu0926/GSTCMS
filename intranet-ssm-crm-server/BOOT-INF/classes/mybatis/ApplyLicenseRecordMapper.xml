@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.intranet.ssmcrmserver.dao.mapper.ApplyLicenseRecordMapper">
+    <!-- 表字段与实体属性映射 -->
+    <resultMap id="BaseResultMap" type="com.intranet.ssmcrmserver.dao.model.ApplyLicenseRecord" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="virtual_id" property="virtualId" jdbcType="VARCHAR" />
+        <result column="license_type" property="licenseType" jdbcType="INTEGER" />
+        <result column="apply_type" property="applyType" jdbcType="INTEGER" />
+        <result column="apply_status" property="applyStatus" jdbcType="INTEGER" />
+        <result column="audit_status" property="auditStatus" jdbcType="INTEGER" />
+        <result column="secret_key_path" property="secretKeyPath" jdbcType="VARCHAR" />
+        <result column="secret_key_download_url" property="secretKeyDownloadUrl" jdbcType="VARCHAR" />
+        <result column="operator_name" property="operatorName" jdbcType="VARCHAR" />
+        <result column="apply_time" property="applyTime" jdbcType="VARCHAR" />
+        <result column="update_time" property="updateTime" />
+        <result column="is_del" property="isDel" jdbcType="INTEGER" />
+    </resultMap>
+
+    <sql id="base_column_list">
+        id, virtual_id, license_type,apply_type,apply_status, audit_status,secret_key_path, secret_key_download_url,apply_time,update_time, operator_name, is_del
+    </sql>
+
+    <sql id="where_clause">
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="virtualId != null">
+            and virtual_id = #{virtualId}
+        </if>
+        <if test="licenseType != null">
+            and license_type = #{licenseType}
+        </if>
+        <if test="applyType != null">
+            and apply_type = #{applyType}
+        </if>
+        <if test="applyStatus != null">
+            and apply_status = #{applyStatus}
+        </if>
+        <if test="auditStatus != null">
+            and audit_status = #{auditStatus}
+        </if>
+        <if test="applyTime != null">
+            and apply_time = #{applyTime}
+        </if>
+        <if test="isDel != null">
+            and is_del = #{isDel}
+        </if>
+    </sql>
+
+    <select id="selectCountBySelective" resultType="java.lang.Integer">
+        select
+        count(0)
+        from apply_license_record
+        where is_del = 0
+        <include refid="where_clause" />
+    </select>
+
+    <select id="selectOneBySelective" resultMap="BaseResultMap">
+        select <include refid="base_column_list" />
+        from apply_license_record
+        where is_del=0
+        <include refid="where_clause" />
+        order by id desc limit 1
+    </select>
+
+    <select id="selectListBySelective" resultMap="BaseResultMap">
+        select <include refid="base_column_list" />
+        from apply_license_record
+        where is_del=0
+        <include refid="where_clause" />
+        order by id desc
+    </select>
+
+    <insert id="insert" parameterType="com.intranet.ssmcrmserver.dao.model.ApplyLicenseRecord" keyProperty="id" useGeneratedKeys="true">
+        insert into apply_license_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="virtualId != null">
+                virtual_id,
+            </if>
+            <if test="licenseType != null">
+                license_type,
+            </if>
+            <if test="applyType != null">
+                apply_type,
+            </if>
+            <if test="applyStatus != null">
+                apply_status,
+            </if>
+            <if test="auditStatus != null">
+                audit_status,
+            </if>
+            <if test="secretKeyPath != null">
+                secret_key_path,
+            </if>
+            <if test="secretKeyDownloadUrl != null">
+                secret_key_download_url,
+            </if>
+            <if test="operatorName != null">
+                operator_name,
+            </if>
+            <if test="applyTime != null">
+                apply_time,
+            </if>
+            <if test="isDel != null">
+                is_del,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="virtualId != null">
+                #{virtualId},
+            </if>
+            <if test="licenseType != null">
+                #{licenseType},
+            </if>
+            <if test="applyType != null">
+                #{applyType},
+            </if>
+            <if test="applyStatus != null">
+                #{applyStatus},
+            </if>
+            <if test="auditStatus != null">
+                #{auditStatus},
+            </if>
+            <if test="secretKeyPath != null">
+                #{secretKeyPath},
+            </if>
+            <if test="secretKeyDownloadUrl != null">
+                #{secretKeyDownloadUrl},
+            </if>
+            <if test="operatorName != null">
+                #{operatorName},
+            </if>
+            <if test="applyTime != null">
+                #{applyTime},
+            </if>
+            <if test="isDel != null">
+                #{isDel},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.intranet.ssmcrmserver.dao.model.ApplyLicenseRecord">
+        update apply_license_record
+        <set>
+            <if test="isDel != null">
+                is_del = #{isDel},
+            </if>
+            <if test="operatorName != null">
+                operator_name = #{operatorName},
+            </if>
+            <if test="applyType != null">
+                apply_type = #{applyStatus},
+            </if>
+            <if test="applyStatus != null">
+                apply_status = #{applyStatus},
+            </if>
+            <if test="auditStatus != null">
+                audit_status = #{auditStatus},
+            </if>
+        </set>
+        where is_del = 0
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="virtualId != null">
+            and virtual_id = #{virtualId}
+        </if>
+        <if test="applyTime != null">
+            and apply_time = #{applyTime}
+        </if>
+    </update>
+
+</mapper>

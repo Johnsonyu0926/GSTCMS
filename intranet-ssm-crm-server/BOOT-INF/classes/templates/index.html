@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+    <title>服务管理</title>
+    <!--    <link rel="shortcut icon" th:href="@{/favicon.ico}"/>-->
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/font-awesome.min.css}" rel="stylesheet"/>
+    <!-- serverManage list CSS -->
+    <link th:href="@{/css/server-manage.css}" rel="stylesheet">
+
+    <style type="text/css">
+        .nav-tabs>li.active>a {
+            background-color: #aaeaa8;
+            font-weight: bold;
+        }
+    </style>
+
+</head>
+<body>
+    <div>
+        <div>
+            <nav class="navbar navbar-dark bg-dark">
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-top-links navbar-right" style="margin-right: 20px;">
+                        <li class="dropdown"><a class="dropdown-toggle"
+                                                data-toggle="dropdown" href=""> <i class="fa fa-user fa-fw"></i>
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                            <ul class="dropdown-menu dropdown-user">
+                                <li><a href="#" data-toggle="modal" id="User-edit-dialog"><i class="fa fa-user fa-fw"></i> 修改密码</a></li>
+                                <!--                        <li><a href="#"><i class="fa fa-gear fa-fw"></i> 系统设置</a></li>-->
+                                <li class="divider"></li>
+                                <li><a id="login-out"><i class="fa fa-sign-out fa-fw"></i>退出登录</a></li>
+                            </ul> <!-- /.dropdown-user -->
+                        </li>
+                    </ul>
+                    <ul class="nav nav-tabs" role="tablist">
+                        <a class="navbar-brand">管理后台</a>
+                        <li role="presentation" class="active"><a href="#server" aria-controls="server" role="tab" data-toggle="tab" id="server-manage-btn">服务管理</a></li>
+                        <!--                <li role="presentation"><a href="#authorization" aria-controls="server" role="tab" data-toggle="tab" id="license-manage-btn">测试管理</a></li>-->
+                        <li role="presentation"><a href="/authorization" aria-controls="authorization" target="_blank">许可管理</a></li>
+                    </ul>
+                    <div class="tab-content" style="width: 90%;margin-left: 5%">
+                        <div role="tabpanel" class="tab-pane show active" id="server" aria-labelledby="server-manage-btn">
+                            <div class="page-wrapper">
+                                <div class="row" id="server-manage-panel">
+                                    <div class="row">
+                                        <div th:each="row : ${serverList}">
+                                            <div class="col-lg-3 col-xs-4 col-sm-6 col-md-4">
+                                                <div class="panel panel-default card-panel">
+                                                    <!-- /.panel-heading -->
+                                                    <div class="cardBox">
+                                                        <div class="headerBox" style="background-color: #4caf50;">
+                                                            <p>
+                                                                <a title="查看详情" style="cursor: pointer; color:white;vertical-align: center" th:text="${row.getServerName()}">
+                                                                </a>
+                                                            </p>
+                                                        </div>
+                                                        <div class="bodyBox">
+                                                            <p>服务状态：
+                                                                <a class="label label-success" style="border-radius: .25em;" th:if="${row.getStatus() == true}">正常</a>
+                                                                <a class="label label-danger" style="border-radius: .25em;" th:if="${row.getStatus() != true}">异常</a>
+                                                            </p>
+                                                            <button class="reboot-btn" th:text="重启" th:attr="serverId=${row.getServerId()}" id="reboot-server-btn"></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="modal fade" id="userEditDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel">管理信息</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal" id="user_name_form">
+                            <input type="hidden" id="user_name_id" name="user_name"/>
+                            <div class="form-group">
+                                <label for="update_pwd" class="col-sm-2 control-label">输入密码</label>
+                                <div class="col-sm-10">
+                                    <input type="password" class="form-control" id="update_pwd" placeholder="输入密码" name="user_pwd">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirm_update_pwd" class="col-sm-2 control-label">确认密码</label>
+                                <div class="col-sm-10">
+                                    <input type="password" class="form-control" id="confirm_update_pwd" placeholder="确认密码" name="user_pwd">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary" onclick="updateUser()">保存修改</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/jquery.min.js}"></script>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+    <script th:src="@{/js/toast.js}"></script>
+    <script th:src="@{/js/base.js}"></script>
+    <script type="text/javascript">
+
+        let userInfo = null;
+
+        $(document).on("click",".dropdown-toggle",function(){
+
+            if($(this).attr('href')) window.location = $(this).attr('href');
+
+        });
+
+        $(document).ready(function() {
+            $('.reboot-btn').click(function() {
+                rebootServer($(this).attr('serverId'))
+            });
+
+            $('#server-manage-btn').click(function() {
+                $.ajax({
+                    type:"get",
+                    url:"index"
+                });
+            });
+
+            $('#User-edit-dialog').click(function() {
+                getUserInfo()
+            });
+
+            $('#login-out').click(function() {
+                loginOut()
+            });
+        });
+        function rebootServer(id) {
+            $.ajax({
+                type:"get",
+                url:"server/reboot",
+                data:{"serverId": id},
+                success:function(data) {
+                    alert(data['msg'])
+                }
+            });
+        }
+        function getUserInfo() {
+            $("#userEditDialog").modal("show")
+            // $.ajax({
+            //     type:"get",
+            //     url:"user/info",
+            //     success:function(response) {
+            //         console.log("response: ", response)
+            //         if (response["status"] === 1 && response['data'] !== null) {
+            //             userInfo = response['data']
+            //             $("#edit_userName").val(userInfo['userName'])
+            //             $("#edit_userPwd").val(userInfo['password'])
+            //             $("#userEditDialog").modal("show")
+            //         } else {
+            //             alert(response['msg'])
+            //         }
+            //     }
+            // })
+        }
+
+        function updateUser() {
+            var password = $("#update_pwd").val()
+            var confirm_password = $("#confirm_update_pwd").val()
+            if (password.length < 6) {
+                toast({
+                    'msg': '更新密码不能小于6位',
+                    'type': 'warning'
+                })
+                return
+            }
+            if (password !== confirm_password) {
+                toast({
+                    'msg': '两次输入的密码不一致',
+                    'type': 'warning'
+                })
+                return
+            }
+            var update = {
+                'password': hex_md5(password)
+            }
+            $.ajax({
+                type:"get",
+                url:"user/update",
+                data: update,
+                success:function(response) {
+                    if (response["status"] === 1) {
+                        $("#userEditDialog").modal("hide")
+                        self.location = 'login'
+                        alert(response['msg'])
+                    }
+                }
+            })
+        }
+
+        function loginOut() {
+            $.ajax({
+                type:"get",
+                url:"login_out",
+                success:function(response) {
+                    if (response["status"] === 1) {
+                        self.location="/login"
+                        document.cookie
+                        var expires = new Date();
+                        expires.setTime(expires.getTime() - 10);
+                        document.cookie = 'ssm_token='+escape('ssm_token')+';expires=' + expires.toGMTString();
+                    }
+                }
+            })
+        }
+    </script>
+</body>
+</html>

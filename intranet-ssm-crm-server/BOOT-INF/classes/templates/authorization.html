@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="renderer" content="webkit">
+  <title>授权管理</title>
+  <!--    <link rel="shortcut icon" th:href="@{/favicon.ico}"/>-->
+  <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+  <link th:href="@{/css/font-awesome.min.css}" rel="stylesheet"/>
+  <link th:href="@{/css/metisMenu.min.css}" rel="stylesheet">
+  <link th:href="@{/css/dataTables.bootstrap.css}" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link th:href="@{/css/sb-admin-2.css}" rel="stylesheet">
+
+  <style type="text/css">
+    .my-tag {
+      background-color: #ecf5ff;
+      border-color: #d9ecff;
+      display: inline-block;
+      height: 35px;
+      padding: 0 10px;
+      line-height: 35px;
+      font-weight: bold;
+      font-size: 15px;
+      color: #409EFF;
+      border-width: 1px;
+      border-style: solid;
+      border-radius: 4px;
+      -webkit-box-sizing: border-box;
+      box-sizing: border-box;
+      white-space: nowrap;
+    }
+
+    .my-empty {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 40px 0;
+      margin: 45%;
+      font-size: 20px;
+      width: 500px;
+    }
+  </style>
+</head>
+<body>
+<div>
+  <div>
+    <ul class="nav navbar-top-links navbar-left" style="margin-left: 20%;">
+      <div th:if="${code != 1}">
+        <span class="my-empty">许可信息获取失败</span>
+      </div>
+      <div th:if="${code == 1}">
+        <div class="row">
+          <h3><span class="label label-primary">授权信息</span></h3>
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <form th:if="${licenseId != null}">
+                <div class="form-group">
+                  <div id="licenseType">
+                    <label for="licenseType" style="display: inline-block;">许可类型: </label>
+                    <h4 style="display: inline-block;">
+                      <span class="label label-warning" th:if="${licenseType == 1}" th:text="${licenseTypeName}"></span>
+                      <span class="label label-warning" th:if="${licenseType == 2}" th:text="${licenseTypeName}"></span>
+                    </h4>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div id="expireDate">
+                    <label for="expireDate" style="display: inline-block;">许可有效期: </label>
+                    <input type="date" class="form-control" th:value="${beginDate}" style="width: 150px;display: inline-block;" disabled>
+                    <span style="display: inline-block;"> - </span>
+                    <input type="date" class="form-control" th:value="${endDate}" style="width: 150px;display: inline-block;" disabled>
+                    <span class="label label-success" th:if="${expireStatus == 1}" th:text="${expireStatusDes}" style="font-size: 16px"></span>
+                    <span class="label label-warning" th:if="${expireStatus == 2}" th:text="${expireStatusDes}" style="font-size: 16px"></span>
+                    <span class="label label-default" th:if="${expireStatus == 0}" th:text="${expireStatusDes}" style="font-size: 16px"></span>
+                    <span class="label label-danger" th:if="${expireStatus == 3}" th:text="${expireStatusDes}" style="font-size: 16px"></span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="supportTerminalCount" style="display: inline-block;">支持最大终端数: </label>
+                  <input type="text" class="form-control" id="supportTerminalCount" th:placeholder="${supportTerminalCount}" disabled style="text-align:center;width:100px;display: inline-block;">
+                </div>
+                <div class="form-group">
+                  <label for="valueAddedList" style="display: inline-block;">增值服务列表: </label>
+                  <div id="valueAddedList" style="display: inline-block;">
+                    <span th:if="${valueAddedList == null || valueAddedList.size() == 0}">增值服务未开通</span>
+                    <div th:if="${valueAddedList != null && valueAddedList.size() > 0}" th:each="value : ${valueAddedList}" style="display: inline;">
+                      <span th:text="${value.name}" class="my-tag"></span>
+                    </div>
+                  </div>
+                </div>
+              </form>
+              <form th:if="${licenseId == null}">
+                <span>当前没有证书信息</span>
+              </form>
+            </div>
+            <div class="panel-body" th:if="${isAutomatic}">
+              <button class="button btn-info" id="automatic-btn" style="display: inline">自动延期</button>
+              <span style="display: inline" th:text="${remainingShow}"></span>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <h3><span class="label label-info">授权申请</span></h3>
+          <div class="panel panel-default" style="height: 300px;">
+            <div class="panel-body">
+<!--              <ul class="nav nav-pills">-->
+<!--  &lt;!&ndash;              <li role="presentation" class="active"><a data-toggle="tab"  href="#online">在线申请</a></li>&ndash;&gt;-->
+<!--                <li role="presentation"><a data-toggle="tab"  href="#offline">离线申请</a></li>-->
+<!--              </ul>-->
+              <div class="tab-content container" style="margin: 20px">
+                <div class="qw-con tab-pane active wow bounceInLeft" data-wow-delay="0.1s" id="offline" th:object="${onlineApplyInfo}">
+                  <div th:if="*{applyDate == null || applyDate == ''}">当前无申请记录</div>
+                  <div th:if="*{applyDate != null && applyDate != ''}">
+                    <form>
+                      <div class="form-group">
+                        <div id="applyType">
+                          <label for="applyType" style="display: inline-block;">申请类型: </label>
+                          <input type="text" class="form-control" th:value="*{applyTypeName}" style="text-align:center;width: 150px;display: inline-block;" disabled>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <div id="applyDate">
+                          <label for="applyDate" style="display: inline-block;">申请时间: </label>
+                          <input type="text" class="form-control" th:value="*{applyDate}" style="text-align:center;width: 250px;display: inline-block;" disabled>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <div id="licenseTypeName">
+                          <label for="licenseTypeName" style="display: inline-block;">证书类型: </label>
+                          <input type="text" class="form-control" th:value="*{licenseTypeName}" style="text-align:center;width: 150px;display: inline-block;" disabled>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="nav-divider" style="margin-top: 20px;"></div>
+                  <button class="button btn-info" onclick="downloadCipher()" style="margin-top: 20px">导出密钥</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <h3><span class="label label-success">上传授权证书</span></h3>
+          <div class="panel panel-default" style="height: 300px;">
+            <div class="panel-body">
+              <form id="upload-form" action="/license/uploadLicense" method="POST" target="myIframe" enctype="multipart/form-data">
+                <input type="file" accept="text/xml,application/xml" name="file" class="btn btn-info"/>
+                <input type="submit" value="上传" class="btn btn-success" style="margin-top: 10px;"/>
+              </form>
+              <iframe id="myIframe" name="myIframe" class="iframes" style="display: none;"></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ul>
+  </div>
+</div>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/toast.js}"></script>
+<script th:src="@{/js/base.js}"></script>
+<script type="text/javascript">
+  function downloadCipher() {
+    $.ajax({
+      type:"get",
+      url:"/license/exportSecretKey",
+      success:function(response) {
+        if (response["status"] === 1) {
+          window.open(response['data']['downloadUrl'])
+        }
+      }
+    })
+  }
+  $('#upload-form').submit(function (event) {
+    event.preventDefault();
+    var form = $(this);
+    var formData = new FormData(this);
+    if (formData.get('file') == null || formData.get('file').name == null || formData.get('file').name === '') {
+      alert('请先选择文件');
+      return;
+    }
+    $.ajax({
+      type: form.attr('method'),
+      url: form.attr('action'),
+      data: formData,
+      mimeType: "multipart/form-data",
+      contentType: false,
+      cache: false,
+      processData: false,
+      dataType: 'json', //返回数据形式json
+      success: function(data) {
+        if (data['code'] === 1) {
+          alert(data['msg'])
+          location.reload()
+        } else {
+          alert(data['msg'])
+        }
+      }
+    })
+  });
+  $(document).ready(function() {
+    $('#automatic-btn').click(function () {
+      console.log('自动延期')
+      $.ajax({
+        type:"get",
+        url:"prolongation",
+        success:function(data) {
+          alert(data['msg'])
+          if (data['code'] === 1) {
+            location.reload()
+          } else {
+            alert(data['msg'])
+          }
+        }
+      });
+    })
+  })
+
+</script>
+</body>
+</html>
